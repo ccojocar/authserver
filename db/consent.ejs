@@ -1,0 +1,11 @@
+<p><%=client.name%> wants to access your resources.</p>
+
+<form action="/dialog/authorize/decision" method="post">
+    <div>
+         <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
+    </div>
+    <div>
+        <input type="submit" value="Allow" id="allow">
+        <input type="submit" value="Deny" id="deny">
+    </div>
+</form>

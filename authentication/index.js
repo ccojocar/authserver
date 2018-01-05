@@ -2,9 +2,13 @@
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const BasicStrategy = require('passport-http').BasicStrategy;
 const db = require('../db');
 
 
+/**
+ *  This strategy is used to authenticate users based on a username and password.
+ */
 passport.use(new LocalStrategy(
   (username, password, done) => {
     db.users.findByUsername(username, (error, user) => {
@@ -28,3 +32,25 @@ passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser((id, done) => {
   db.users.findById(id, (error, user) => done(error, user));
 });
+
+
+/**
+ * This strategy is used to authenticate a client which provides its credentials in the
+ * Authorization header.
+ */
+passport.use(new BasicStrategy(
+  (clientId, clientSecret, done) => {
+    db.clients.findByClientId(clientId, (error, client) => {
+      if (error) {
+        return done(null, false, { message: error.message });
+      }
+      if (!client) {
+        return done(null, false, { message: 'Client not found'});
+      }
+      if (client.verifyClientSecret(clientSecret) === false) {
+        return done(null, false, { message: 'Incorrect client password'});
+      }
+      return done(null, client);
+    });
+  }
+));

@@ -42,6 +42,11 @@ app.get('/singup', csrfProtection, routes.main.singupPage);
 app.post('/singup', parseForm, csrfProtection, routes.main.singup);
 app.get('/profile', login.ensureLoggedIn(), routes.main.profile);
 
+// OAuth2 routes
+app.get('/dialog/authorize', csrfProtection, routes.oauth2.authorization);
+app.post('/dialog/authorization/dcision', parseForm, csrfProtection, routes.oauth2.decision);
+app.post('/oauth/token', routes.oauth2.token);
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Listening on port: ${port}`);
