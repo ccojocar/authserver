@@ -7,13 +7,15 @@ module.exports.index = (req, res) => {
   res.render('home', {user: req.user });
 };
 
-module.exports.loginPage = (req, res) => res.render('login', { errors: req.session.flash });
+module.exports.loginPage = (req, res) => res.render('login',
+                                                    { errors: req.session.flash , csrfToken: req.csrfToken()});
 
 module.exports.login = passport.authenticate('local', { successRedirect: '/',
                                                         failureRedirect: '/login',
                                                         failureFlash: true});
 
-module.exports.singupPage = (req, res) => res.render('singup');
+module.exports.singupPage = (req, res) => res.render('singup',
+                                                     { csrfToken: req.csrfToken()});
 
 module.exports.singup = (req, res) => {
   // TODO: verify the email address by sending a confirmation URL

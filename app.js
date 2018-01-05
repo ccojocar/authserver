@@ -4,12 +4,17 @@ const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const csrf = require('csurf');
 const errorHandler = require('errorhandler');
 const passport = require('passport');
 const crypto = require('crypto');
 const routes = require('./routes');
 const login = require('connect-ensure-login');
 const flash = require('connect-flash');
+
+// CSRF protection
+const csrfProtection = csrf({cookie: true});
+const parseForm = bodyParser.urlencoded({extended: false});
 
 // General application configuration
 const app = express();
@@ -30,11 +35,11 @@ app.use(passport.session());
 // Define the application routes
 require('./authentication');
 app.get('/', login.ensureLoggedIn(), routes.main.index);
-app.get('/login', routes.main.loginPage);
-app.post('/login', routes.main.login);
+app.get('/login', csrfProtection, routes.main.loginPage);
+app.post('/login', parseForm, csrfProtection, routes.main.login);
 app.get('/logout', login.ensureLoggedIn(), routes.main.logout);
-app.get('/singup', routes.main.singupPage);
-app.post('/singup', routes.main.singup);
+app.get('/singup', csrfProtection, routes.main.singupPage);
+app.post('/singup', parseForm, csrfProtection, routes.main.singup);
 app.get('/profile', login.ensureLoggedIn(), routes.main.profile);
 
 const port = process.env.PORT || 3000;
