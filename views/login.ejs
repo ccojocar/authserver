@@ -1,8 +1,8 @@
 <form action="/login" method="post">
     <% if (errors) { %>
-     <div>
-        <strong>Error: <%=errors.error.join()%></strong>
-     </div>
+        <div>
+            <strong>Error: <%=errors.error.join()%></strong>
+        </div>
     <% } %>
     <div>
         <label>Username:</label>
@@ -16,3 +16,6 @@
         <input type="submit" value="Log In"/>
     </div>
 </form>
+<div>
+    <a href="/singup"> Sing Up</a>
+</div>

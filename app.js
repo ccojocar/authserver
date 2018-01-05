@@ -33,9 +33,11 @@ app.get('/', login.ensureLoggedIn(), routes.main.index);
 app.get('/login', routes.main.loginPage);
 app.post('/login', routes.main.login);
 app.get('/logout', login.ensureLoggedIn(), routes.main.logout);
+app.get('/singup', routes.main.singupPage);
+app.post('/singup', routes.main.singup);
 app.get('/profile', login.ensureLoggedIn(), routes.main.profile);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    console.log(`Listening on port: ${port}`);
+  console.log(`Listening on port: ${port}`);
 });
