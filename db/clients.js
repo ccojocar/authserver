@@ -22,30 +22,28 @@ class Client {
     hash.update(clientSecret);
     const hashClientSecret = hash.digest('hex');
     return crypto.timingSafeEqual(Buffer.from(this.clientSecret, 'utf8'),
-                                  Buffer.from(hashClientSecret, 'utf8'));
+      Buffer.from(hashClientSecret, 'utf8'));
   }
 }
-Client.nextId = 0;
+Client.nextId = 1;
 
 const clients = [
-  new Client("Client1", "c96a5eca-f226-11e7-8c3f-9a214cf093ae",  "Client1Secret", "https://client1/callback")
+  new Client("Client1", "c96a5eca-f226-11e7-8c3f-9a214cf093ae", "Client1Secret", "http://localhost:3001/oauth2/callback")
 ];
 
 
 module.exports.findByClientId = (clientId, done) => {
-  for (client of clients) {
-    if (client.clientId === clientId) {
-      return done(null, client);
-    }
+  const client = clients.find((client) => client.clientId === clientId);
+  if (client) {
+    return done(null, client);
   }
   return done(null, null);
 };
 
 module.exports.findById = (id, done) => {
-  for (client of clients) {
-    if (client.id === id) {
-      return done(null, client);
-    }
+  const client = clients.find((client) => client.id === id);
+  if (client) {
+    return done(null, client);
   }
   return done(null, null);
 };

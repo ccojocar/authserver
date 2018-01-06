@@ -1,8 +1,8 @@
 <p><%=client.name%> wants to access your resources.</p>
 
-<form action="/dialog/authorize/decision" method="post">
+<form action="/oauth2/authorization/decision" method="post">
     <div>
-         <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
+         <input name="transaction_id" type="hidden" value="<%= transactionID %>">
     </div>
     <div>
         <input type="submit" value="Allow" id="allow">

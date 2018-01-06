@@ -45,10 +45,10 @@ passport.use(new BasicStrategy(
         return done(null, false, { message: error.message });
       }
       if (!client) {
-        return done(null, false, { message: 'Client not found'});
+        return done(null, false, { message: 'Client not found' });
       }
       if (client.verifyClientSecret(clientSecret) === false) {
-        return done(null, false, { message: 'Incorrect client password'});
+        return done(null, false, { message: 'Incorrect client password' });
       }
       return done(null, client);
     });

@@ -9,7 +9,6 @@ const db = require('../db');
 // OAuth 2.0 server
 const server = oauth2orize.createServer();
 
-
 // Store the client identifier in the session
 server.serializeClient((client, done) => {
   return done(null, client.id);
@@ -18,7 +17,7 @@ server.serializeClient((client, done) => {
 // Restore the client details from database based on the client identifier
 // which was stored into the session
 server.deserializeClient((id, done) => {
-  db.clients.find(id, (error, client) => {
+  db.clients.findById(id, (error, client) => {
     if (error) return done(error);
     return done(null, client);
   });
@@ -34,7 +33,6 @@ server.grant(oauth2orize.grant.code((client, redirectURI, user, ares, done) => {
     if (error) { return done(error); }
     return done(null, code);
   });
-  return done(null, null);
 }));
 
 
@@ -51,7 +49,6 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
       authCode.markAsUsed();
       return done(null, token);
     }));
-    return done(null, null);
   });
 }));
 
@@ -59,14 +56,15 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
 module.exports.authorization = [
   login.ensureLoggedIn(),
   server.authorization((clientId, redirectURI, done) => {
-    db.clients.find(clientId, (error, client) => {
-      if (error) { return done(error);}
-      if (redirectURI !== client.redirectURI) {return done(null, false); }
+    db.clients.findByClientId(clientId, (error, client) => {
+      if (error) { return done(error); }
+      if (!client) { return done(null, false); }
+      if (redirectURI !== client.redirectURI) { return done(null, false); }
       return done(null, client, redirectURI);
     });
   }),
   (req, res) => {
-    res.render('consent', { csrfToken: req.csrfToken(), client: req.oauth2.client });
+    res.render('consent', { transactionID: req.oauth2.transactionID, client: req.oauth2.client });
   }
 ];
 
@@ -77,7 +75,7 @@ module.exports.decision = [
 ];
 
 module.exports.token = [
-  passport.authenticate(['basic'], {session: false}),
+  passport.authenticate(['basic'], { session: false }),
   server.token(),
   server.errorHandler()
 ];

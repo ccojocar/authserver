@@ -23,28 +23,26 @@ class User {
     hash.update(password);
     const hashPassword = hash.digest('hex');
     return crypto.timingSafeEqual(Buffer.from(this.password, 'utf8'),
-                                  Buffer.from(hashPassword, 'utf8'));
+      Buffer.from(hashPassword, 'utf8'));
   }
 }
-User.nextId = 0;
+User.nextId = 1;
 
 let users = [
 ];
 
 module.exports.findById = (id, done) => {
-  for (let user of users) {
-    if (user.id === id) {
+  const user = users.find((user) => user.id === id);
+  if (user) {
       return done(null, user);
-    }
   }
   return done(null);
 };
 
 module.exports.findByUsername = (username, done) => {
-  for (let user of users) {
-    if (user.username === username) {
-      return done(null, user);
-    }
+  const user = users.find((user) => user.username === username);
+  if (user) {
+    return done(null, user);
   }
   return done(null);
 };

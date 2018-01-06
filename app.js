@@ -13,8 +13,8 @@ const login = require('connect-ensure-login');
 const flash = require('connect-flash');
 
 // CSRF protection
-const csrfProtection = csrf({cookie: true});
-const parseForm = bodyParser.urlencoded({extended: false});
+const csrfProtection = csrf({ cookie: true });
+const parseForm = bodyParser.urlencoded({ extended: false });
 
 // General application configuration
 const app = express();
@@ -43,9 +43,9 @@ app.post('/singup', parseForm, csrfProtection, routes.main.singup);
 app.get('/profile', login.ensureLoggedIn(), routes.main.profile);
 
 // OAuth2 routes
-app.get('/dialog/authorize', csrfProtection, routes.oauth2.authorization);
-app.post('/dialog/authorization/dcision', parseForm, csrfProtection, routes.oauth2.decision);
-app.post('/oauth/token', routes.oauth2.token);
+app.get('/oauth2/authorize', routes.oauth2.authorization);
+app.post('/oauth2/authorization/decision', routes.oauth2.decision);
+app.post('/oauth2/token', routes.oauth2.token);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

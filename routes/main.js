@@ -4,18 +4,20 @@ const passport = require('passport');
 const db = require('../db');
 
 module.exports.index = (req, res) => {
-  res.render('home', {user: req.user });
+  res.render('home', { user: req.user });
 };
 
 module.exports.loginPage = (req, res) => res.render('login',
-                                                    { errors: req.session.flash , csrfToken: req.csrfToken()});
+  { errors: req.session.flash, csrfToken: req.csrfToken() });
 
-module.exports.login = passport.authenticate('local', { successRedirect: '/',
-                                                        failureRedirect: '/login',
-                                                        failureFlash: true});
+module.exports.login = passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login',
+  failureFlash: true
+});
 
 module.exports.singupPage = (req, res) => res.render('singup',
-                                                     { csrfToken: req.csrfToken()});
+  { csrfToken: req.csrfToken() });
 
 module.exports.singup = (req, res) => {
   // TODO: verify the email address by sending a confirmation URL
@@ -29,7 +31,7 @@ module.exports.singup = (req, res) => {
 };
 
 module.exports.logout = (req, res) => {
-  req.session.destroy((error => {}));
+  req.session.destroy((error => { }));
   res.redirect('/');
 };
 
