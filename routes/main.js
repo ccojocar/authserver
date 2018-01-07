@@ -10,11 +10,14 @@ module.exports.index = (req, res) => {
 module.exports.loginPage = (req, res) => res.render('login',
   { errors: req.session.flash, csrfToken: req.csrfToken() });
 
-module.exports.login = passport.authenticate('local', {
-  successRedirect: '/',
-  failureRedirect: '/login',
-  failureFlash: true
-});
+module.exports.login = (req, res) => {
+  const successRedirect = req.session.returnTo || '/';
+  passport.authenticate('local', {
+    successRedirect: successRedirect,
+    failureRedirect: '/login',
+    failureFlash: true
+  })(req, res);
+};
 
 module.exports.singupPage = (req, res) => res.render('singup',
   { csrfToken: req.csrfToken() });
