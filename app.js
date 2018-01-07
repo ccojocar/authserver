@@ -44,8 +44,14 @@ app.get('/profile', login.ensureLoggedIn(), routes.main.profile);
 
 // OAuth2 routes
 app.get('/oauth2/authorize', routes.oauth2.authorization);
-app.post('/oauth2/authorization/decision', routes.oauth2.decision);
-app.post('/oauth2/token', routes.oauth2.token);
+app.post('/oauth2/authorization/decision', login.ensureLoggedIn(), routes.oauth2.decision);
+app.post('/oauth2/token',
+  passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
+  routes.oauth2.token);
+
+app.get('/userinfo',
+  passport.authenticate('bearer', { session: false }),
+  routes.user.info);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

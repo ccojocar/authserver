@@ -70,12 +70,10 @@ module.exports.authorization = [
 
 
 module.exports.decision = [
-  login.ensureLoggedIn(),
   server.decision()
 ];
 
 module.exports.token = [
-  passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
   server.token(),
   server.errorHandler()
 ];
