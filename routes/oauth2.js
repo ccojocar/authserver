@@ -44,11 +44,11 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
     if (redirectURI !== authCode.redirectURI) { return done(null, false); }
 
     const token = crypto.randomBytes(256).toString('hex');
-    db.accessTokens.save((token, authCode.userId, authCode.clientId, (error) => {
+    db.accessTokens.save(token, authCode.userId, authCode.clientId, (error) => {
       if (error) { return done(error); }
       authCode.markAsUsed();
       return done(null, token);
-    }));
+    });
   });
 }));
 
@@ -75,7 +75,7 @@ module.exports.decision = [
 ];
 
 module.exports.token = [
-  passport.authenticate(['basic'], { session: false }),
+  passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
   server.token(),
   server.errorHandler()
 ];

@@ -12,7 +12,7 @@ let accessTokens = new Map();
 
 module.exports.save = (token, userId, clientId, done) => {
   if (accessTokens.has(token) === false) {
-    accessTokens.set(token);
+    accessTokens.set(token, new AccessToken(token, userId, clientId));
   }
   return done(null);
 };
