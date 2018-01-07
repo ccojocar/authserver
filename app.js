@@ -49,6 +49,7 @@ app.post('/oauth2/token',
   passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
   routes.oauth2.token);
 
+// User information route which can be accessed only with an access token
 app.get('/userinfo',
   passport.authenticate('bearer', { session: false }),
   routes.user.info);

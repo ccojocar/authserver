@@ -14,8 +14,10 @@ server.serializeClient((client, done) => {
   return done(null, client.id);
 });
 
-// Restore the client details from database based on the client identifier
-// which was stored into the session
+/**
+ * Restore the client details from database based on the client identifier
+ * which was stored into the session.
+ */
 server.deserializeClient((id, done) => {
   db.clients.findById(id, (error, client) => {
     if (error) return done(error);
@@ -23,7 +25,9 @@ server.deserializeClient((id, done) => {
   });
 });
 
-
+/**
+ * It issues a new code grant to a client after the user is authenticated.
+ */
 server.grant(oauth2orize.grant.code((client, redirectURI, user, ares, done) => {
   if (client.redirectURI !== redirectURI) {
     return done(null, false);
@@ -35,7 +39,9 @@ server.grant(oauth2orize.grant.code((client, redirectURI, user, ares, done) => {
   });
 }));
 
-
+/**
+ * This is executed when a client requrests to exchange an code grant for an access token.
+ */
 server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
   db.authcodes.find(code, (error, authCode) => {
     if (error) { return done(error); }
@@ -53,6 +59,10 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
 }));
 
 
+/**
+ * It provides the authorization endpoint which is the entry point of the OAuth 2.0 code grant. At this stage
+ * the user must authetnicate and the client should be verified. 
+ */
 module.exports.authorization = [
   login.ensureLoggedIn(),
   server.authorization((clientId, redirectURI, done) => {
@@ -68,11 +78,17 @@ module.exports.authorization = [
   }
 ];
 
-
+/** 
+ * It handles the decision of the user consent.
+ */
 module.exports.decision = [
   server.decision()
 ];
 
+/**
+ * It provides the token endpoint which is access by a client when it wants to excange a code grant 
+ * for an access token.
+ */
 module.exports.token = [
   server.token(),
   server.errorHandler()

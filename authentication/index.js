@@ -7,7 +7,6 @@ const ClinetPasswordStrategy = require('passport-oauth2-client-password').Strate
 const BearerStrategy = require('passport-http-bearer').Strategy;
 const db = require('../db');
 
-
 /**
  *  This strategy is used to authenticate users based on a username and password.
  */
@@ -28,9 +27,14 @@ passport.use(new LocalStrategy(
   }
 ));
 
-
+/**
+ * Store the use indetifier into the session
+ */
 passport.serializeUser((user, done) => done(null, user.id));
 
+/**
+ * Store the full user information based on the idenfitier stored into the session
+ */
 passport.deserializeUser((id, done) => {
   db.users.findById(id, (error, user) => done(error, user));
 });
