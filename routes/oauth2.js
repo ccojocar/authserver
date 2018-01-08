@@ -47,8 +47,8 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
     if (redirectURI !== authCode.redirectURI) { return done(null, false); }
 
     const token = crypto.randomBytes(256).toString('hex');
-    db.accessTokens.save(token, authCode.userId, authCode.clientId, (error) => {
-      if (error) { return done(error); }
+    db.accessTokens.save(token, authCode.userId, authCode.clientId, (err) => {
+      if (err) { return done(err); }
       authCode.markAsUsed();
       return done(null, token);
     });
@@ -57,8 +57,8 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
 
 
 /**
- * It provides the authorization endpoint which is the entry point of the OAuth 2.0 code grant. At this stage
- * the user must authetnicate and the client should be verified.
+ * It provides the authorization endpoint which is the entry point of the OAuth 2.0
+ *  code grant. At this stage the user must authetnicate and the client should be verified.
  */
 module.exports.authorization = [
   login.ensureLoggedIn(),
@@ -72,7 +72,7 @@ module.exports.authorization = [
   }),
   (req, res) => {
     res.render('consent', { transactionID: req.oauth2.transactionID, client: req.oauth2.client });
-  }
+  },
 ];
 
 /**

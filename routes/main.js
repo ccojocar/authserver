@@ -7,28 +7,26 @@ module.exports.index = (req, res) => {
 
 module.exports.loginPage = (req, res) => res.render(
   'login',
-  { errors: req.session.flash, csrfToken: req.csrfToken() }
-);
+  { errors: req.session.flash, csrfToken: req.csrfToken() });
 
 module.exports.login = (req, res) => {
   const redirect = req.session.returnTo || '/';
   passport.authenticate('local', {
     successRedirect: redirect,
     failureRedirect: '/login',
-    failureFlash: true
+    failureFlash: true,
   })(req, res);
 };
 
 module.exports.singupPage = (req, res) => res.render(
   'singup',
-  { csrfToken: req.csrfToken() }
-);
+  { csrfToken: req.csrfToken() });
 
 module.exports.singup = (req, res) => {
   // TODO: verify the email address by sending a confirmation URL
   db.users.save(req.body.name, req.body.username, req.body.password, req.body.email, (error) => {
     if (error) {
-      console.log(`Failed to store the user: ${error}`);
+      res.status(500).send(`Failed to stored the user with error: ${error}`);
     }
   });
 
@@ -36,8 +34,13 @@ module.exports.singup = (req, res) => {
 };
 
 module.exports.logout = (req, res) => {
-  req.session.destroy(error => console.log(error));
-  res.redirect('/');
+  req.session.destroy((error) => {
+    if (error) {
+      res.status(500).send(`Failed to logout with error: ${error}`);
+    } else {
+      res.redirect('/');
+    }
+  });
 };
 
 module.exports.profile = (req, res) => {

@@ -2,7 +2,8 @@ const crypto = require('crypto');
 
 class User {
   static getNextId() {
-    return User.nextId++;
+    User.nextId += 1;
+    return User.nextId;
   }
   constructor(name, username, password, email) {
     this.id = User.getNextId();
@@ -21,11 +22,10 @@ class User {
     const hashPassword = hash.digest('hex');
     return crypto.timingSafeEqual(
       Buffer.from(this.password, 'utf8'),
-      Buffer.from(hashPassword, 'utf8')
-    );
+      Buffer.from(hashPassword, 'utf8'));
   }
 }
-User.nextId = 1;
+User.nextId = 0;
 
 const users = [
 ];
