@@ -1,5 +1,3 @@
-'use strict';
-
 const users = require('./users');
 const clients = require('./clients');
 const authcodes = require('./authcodes');
@@ -9,5 +7,5 @@ module.exports = {
   users,
   clients,
   authcodes,
-  accessTokens
+  accessTokens,
 };

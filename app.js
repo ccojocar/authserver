@@ -1,5 +1,3 @@
-'use strict';
-
 const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -18,7 +16,7 @@ const parseForm = bodyParser.urlencoded({ extended: false });
 
 // General application configuration
 const app = express();
-app.set('views', __dirname + '/views');
+app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
 app.use(cookieParser());
 app.use(bodyParser.json({ extended: false }));
@@ -34,6 +32,7 @@ app.use(passport.session());
 
 // Define the application routes
 require('./authentication');
+
 app.get('/', login.ensureLoggedIn(), routes.main.index);
 app.get('/login', csrfProtection, routes.main.loginPage);
 app.post('/login', parseForm, csrfProtection, routes.main.login);

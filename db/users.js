@@ -1,9 +1,6 @@
-'use strict';
-
 const crypto = require('crypto');
 
 class User {
-
   static getNextId() {
     return User.nextId++;
   }
@@ -22,25 +19,27 @@ class User {
     const hash = crypto.createHash('sha256');
     hash.update(password);
     const hashPassword = hash.digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(this.password, 'utf8'),
-      Buffer.from(hashPassword, 'utf8'));
+    return crypto.timingSafeEqual(
+      Buffer.from(this.password, 'utf8'),
+      Buffer.from(hashPassword, 'utf8')
+    );
   }
 }
 User.nextId = 1;
 
-let users = [
+const users = [
 ];
 
 module.exports.findById = (id, done) => {
-  const user = users.find((user) => user.id === id);
+  const user = users.find(u => u.id === id);
   if (user) {
-      return done(null, user);
+    return done(null, user);
   }
   return done(null);
 };
 
 module.exports.findByUsername = (username, done) => {
-  const user = users.find((user) => user.username === username);
+  const user = users.find(u => u.username === username);
   if (user) {
     return done(null, user);
   }

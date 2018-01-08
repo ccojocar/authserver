@@ -1,8 +1,5 @@
-'use strict';
-
 const crypto = require('crypto');
 const oauth2orize = require('oauth2orize');
-const passport = require('passport');
 const login = require('connect-ensure-login');
 const db = require('../db');
 
@@ -10,9 +7,7 @@ const db = require('../db');
 const server = oauth2orize.createServer();
 
 // Store the client identifier in the session
-server.serializeClient((client, done) => {
-  return done(null, client.id);
-});
+server.serializeClient((client, done) => done(null, client.id));
 
 /**
  * Restore the client details from database based on the client identifier
@@ -61,7 +56,7 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
 
 /**
  * It provides the authorization endpoint which is the entry point of the OAuth 2.0 code grant. At this stage
- * the user must authetnicate and the client should be verified. 
+ * the user must authetnicate and the client should be verified.
  */
 module.exports.authorization = [
   login.ensureLoggedIn(),
@@ -78,18 +73,18 @@ module.exports.authorization = [
   }
 ];
 
-/** 
+/**
  * It handles the decision of the user consent.
  */
 module.exports.decision = [
-  server.decision()
+  server.decision(),
 ];
 
 /**
- * It provides the token endpoint which is access by a client when it wants to excange a code grant 
+ * It provides the token endpoint which is access by a client when it wants to excange a code grant
  * for an access token.
  */
 module.exports.token = [
   server.token(),
-  server.errorHandler()
+  server.errorHandler(),
 ];

@@ -1,5 +1,3 @@
-'use strict';
-
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const BasicStrategy = require('passport-http').BasicStrategy;
@@ -10,22 +8,20 @@ const db = require('../db');
 /**
  *  This strategy is used to authenticate users based on a username and password.
  */
-passport.use(new LocalStrategy(
-  (username, password, done) => {
-    db.users.findByUsername(username, (error, user) => {
-      if (error) {
-        return done(null, false, { message: error.message });
-      }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username' });
-      }
-      if (user.verifyPassword(password) === false) {
-        return done(null, false, { message: 'Incorrect password' });
-      }
-      return done(null, user);
-    });
-  }
-));
+passport.use(new LocalStrategy((username, password, done) => {
+  db.users.findByUsername(username, (error, user) => {
+    if (error) {
+      return done(null, false, { message: error.message });
+    }
+    if (!user) {
+      return done(null, false, { message: 'Incorrect username' });
+    }
+    if (user.verifyPassword(password) === false) {
+      return done(null, false, { message: 'Incorrect password' });
+    }
+    return done(null, user);
+  });
+}));
 
 /**
  * Store the use indetifier into the session
@@ -44,62 +40,56 @@ passport.deserializeUser((id, done) => {
  * This strategy is used to authenticate a client which provides its credentials in the
  * Authorization header.
  */
-passport.use(new BasicStrategy(
-  (clientId, clientSecret, done) => {
-    db.clients.findByClientId(clientId, (error, client) => {
-      if (error) {
-        return done(null, false, { message: error.message });
-      }
-      if (!client) {
-        return done(null, false, { message: 'Client not found' });
-      }
-      if (client.verifyClientSecret(clientSecret) === false) {
-        return done(null, false, { message: 'Incorrect client password' });
-      }
-      return done(null, client);
-    });
-  }
-));
+passport.use(new BasicStrategy((clientId, clientSecret, done) => {
+  db.clients.findByClientId(clientId, (error, client) => {
+    if (error) {
+      return done(null, false, { message: error.message });
+    }
+    if (!client) {
+      return done(null, false, { message: 'Client not found' });
+    }
+    if (client.verifyClientSecret(clientSecret) === false) {
+      return done(null, false, { message: 'Incorrect client password' });
+    }
+    return done(null, client);
+  });
+}));
 
 /**
- * This strategy is used to authenticate a client which provides its credentials in the 
+ * This strategy is used to authenticate a client which provides its credentials in the
  * HTTP body (e.g. passport-oauth2).
  */
-passport.use(new ClinetPasswordStrategy(
-  (clientId, clientSecret, done) => {
-    db.clients.findByClientId(clientId, (error, client) => {
-      if (error) {
-        return done(null, false, { message: error.message });
-      }
-      if (!client) {
-        return done(null, false, { message: 'Client not found' });
-      }
-      if (client.verifyClientSecret(clientSecret) === false) {
-        return done(null, false, { message: 'Incorrect client password' });
-      }
-      return done(null, client);
-    });
-  }
-));
+passport.use(new ClinetPasswordStrategy((clientId, clientSecret, done) => {
+  db.clients.findByClientId(clientId, (error, client) => {
+    if (error) {
+      return done(null, false, { message: error.message });
+    }
+    if (!client) {
+      return done(null, false, { message: 'Client not found' });
+    }
+    if (client.verifyClientSecret(clientSecret) === false) {
+      return done(null, false, { message: 'Incorrect client password' });
+    }
+    return done(null, client);
+  });
+}));
 
 /**
- * This strategy is used to authenticate a user based on an access token which is 
+ * This strategy is used to authenticate a user based on an access token which is
  * provided as a bearer token (e.g. to retrieve the user information).
  */
-passport.use(new BearerStrategy(
-  (accessToken, done) => {
-    db.accessTokens.find(accessToken, (error, token) => {
-      if (error) { return done(error); }
-      if (!token) { return done(null, false); }
-      if (token.userId != null) {
-        db.users.findById(token.userId, (error, user) => {
-          if (error) { return done(error); }
-          if (!user) { return done(null, false); }
-          done(null, user);
-        })
-      } else {
-        done(null, false);
-      }
-    });
-  }
-));
+passport.use(new BearerStrategy((accessToken, done) => {
+  db.accessTokens.find(accessToken, (error, token) => {
+    if (error) { return done(error); }
+    if (!token) { return done(null, false); }
+    if (token.userId != null) {
+      db.users.findById(token.userId, (err, user) => {
+        if (err) { return done(err); }
+        if (!user) { return done(null, false); }
+        return done(null, user);
+      });
+    } else {
+      return done(null, false);
+    }
+  });
+}));

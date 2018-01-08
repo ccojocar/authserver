@@ -1,5 +1,3 @@
-'use strict';
-
 const crypto = require('crypto');
 
 class Client {
@@ -21,19 +19,21 @@ class Client {
     const hash = crypto.createHash('sha256');
     hash.update(clientSecret);
     const hashClientSecret = hash.digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(this.clientSecret, 'utf8'),
-      Buffer.from(hashClientSecret, 'utf8'));
+    return crypto.timingSafeEqual(
+      Buffer.from(this.clientSecret, 'utf8'),
+      Buffer.from(hashClientSecret, 'utf8')
+    );
   }
 }
 Client.nextId = 1;
 
 const clients = [
-  new Client("Client1", "c96a5eca-f226-11e7-8c3f-9a214cf093ae", "Client1Secret", "http://localhost:3001/oauth2/callback")
+  new Client('Client1', 'c96a5eca-f226-11e7-8c3f-9a214cf093ae', 'Client1Secret', 'http://localhost:3001/oauth2/callback'),
 ];
 
 
 module.exports.findByClientId = (clientId, done) => {
-  const client = clients.find((client) => client.clientId === clientId);
+  const client = clients.find(c => c.clientId === clientId);
   if (client) {
     return done(null, client);
   }
@@ -41,7 +41,7 @@ module.exports.findByClientId = (clientId, done) => {
 };
 
 module.exports.findById = (id, done) => {
-  const client = clients.find((client) => client.id === id);
+  const client = clients.find(c => c.id === id);
   if (client) {
     return done(null, client);
   }

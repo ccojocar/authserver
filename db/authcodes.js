@@ -1,5 +1,3 @@
-'use strict';
-
 class AuthCode {
   constructor(code, userId, clientId, redirectURI) {
     this.code = code;
@@ -18,7 +16,7 @@ class AuthCode {
   }
 }
 
-let authCodes = new Map();
+const authCodes = new Map();
 
 module.exports.save = (code, userId, clientId, redirectURI, done) => {
   if (authCodes.has(code) === false) {
@@ -27,6 +25,4 @@ module.exports.save = (code, userId, clientId, redirectURI, done) => {
   return done(null);
 };
 
-module.exports.find = (code, done) => {
-  return done(null, authCodes.get(code));
-};
+module.exports.find = (code, done) => done(null, authCodes.get(code));

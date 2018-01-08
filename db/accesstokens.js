@@ -1,5 +1,3 @@
-'use strict';
-
 class AccessToken {
   constructor(token, userId, clientId) {
     this.token = token;
@@ -8,7 +6,7 @@ class AccessToken {
   }
 }
 
-let accessTokens = new Map();
+const accessTokens = new Map();
 
 module.exports.save = (token, userId, clientId, done) => {
   if (accessTokens.has(token) === false) {
@@ -17,7 +15,4 @@ module.exports.save = (token, userId, clientId, done) => {
   return done(null);
 };
 
-
-module.exports.find = (token, done) => {
-  return done(null, accessTokens.get(token));
-};
+module.exports.find = (token, done) => done(null, accessTokens.get(token));
