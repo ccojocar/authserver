@@ -40,6 +40,8 @@ server.grant(oauth2orize.grant.code((client, redirectURI, user, ares, done) => {
 server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
   db.authcodes.find(code, (error, authCode) => {
     if (error) { return done(error); }
+    if (!authCode) { return done(null, false); }
+    if (authCode.isExpired()) { return done(null, false); }
     if (authCode.isUsed() === true) { return done(null, false); }
     if (client.id !== authCode.clientId) { return done(null, false); }
     if (redirectURI !== authCode.redirectURI) { return done(null, false); }

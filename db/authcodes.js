@@ -5,6 +5,7 @@ class AuthCode {
     this.userId = userId;
     this.clientId = clientId;
     this.redirectURI = redirectURI;
+    this.issuedAt = new Date().getTime();
   }
 
   isUsed() {
@@ -13,6 +14,13 @@ class AuthCode {
 
   markAsUsed() {
     this.used = true;
+  }
+
+  isExpired() {
+    // the code grant is valid for 5 minutes
+    const lifetime = 300000;
+    const currentTime = new Date().getTime();
+    return (this.issuedAt + lifetime) < currentTime;
   }
 }
 

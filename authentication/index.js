@@ -82,6 +82,7 @@ passport.use(new BearerStrategy((accessToken, done) => {
   db.accessTokens.find(accessToken, (error, token) => {
     if (error) { return done(error); }
     if (!token) { return done(null, false); }
+    if (token.isExpired()) { return done(null, false); }
     if (token.userId != null) {
       db.users.findById(token.userId, (err, user) => {
         if (err) { return done(err); }

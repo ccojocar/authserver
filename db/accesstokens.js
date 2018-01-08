@@ -3,6 +3,14 @@ class AccessToken {
     this.token = token;
     this.userId = userId;
     this.clientId = clientId;
+    this.issuedAt = new Date().getTime();
+  }
+
+  isExpired() {
+    // the access token is valid for 1 hour
+    const lifetime = 3600000;
+    const currentTime = new Date().getTime();
+    return (this.issuedAt + lifetime) < currentTime;
   }
 }
 
