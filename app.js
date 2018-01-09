@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const routes = require('./routes');
 const login = require('connect-ensure-login');
 const flash = require('connect-flash');
+const auth = require('./authentication');
 
 // CSRF protection
 const csrfProtection = csrf({ cookie: true });
@@ -30,12 +31,26 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Configure GitHub authenticator
+const GitHubCallbackURL = "http://localhost:3000/login/github/callback";
+auth.configureGitHubAuth(
+  process.env.GITHUB_CLIENT_ID,
+  process.env.GITHUB_CLIENT_SECRET,
+  GitHubCallbackURL);
+
 // Define the application routes
 require('./authentication');
 
 app.get('/', login.ensureLoggedIn(), routes.main.index);
 app.get('/login', csrfProtection, routes.main.loginPage);
-app.post('/login', parseForm, csrfProtection, routes.main.login);
+app.post('/login/method', parseForm, csrfProtection, (req, res) => {
+  const redirect = `/login/${req.body.dropdown}`;
+  res.redirect(redirect);
+});
+app.get('/login/userpassword', csrfProtection, routes.main.userpassword);
+app.post('/login/userpassword/callback', parseForm, csrfProtection, routes.main.userpasswordCallback);
+app.get('/login/github', routes.main.github);
+app.get('/login/github/callback', routes.main.githubCallback);
 app.get('/logout', login.ensureLoggedIn(), routes.main.logout);
 app.get('/singup', csrfProtection, routes.main.singupPage);
 app.post('/singup', parseForm, csrfProtection, routes.main.singup);

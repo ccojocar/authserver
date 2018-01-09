@@ -9,12 +9,29 @@ module.exports.loginPage = (req, res) => res.render(
   'login',
   { errors: req.session.flash, csrfToken: req.csrfToken() });
 
-module.exports.login = (req, res) => {
+module.exports.userpassword = (req, res) => res.render(
+  'userpassword',
+  { errors: req.session.flash, csrfToken: req.csrfToken() });
+
+module.exports.userpasswordCallback = (req, res) => {
   const redirect = req.session.returnTo || '/';
   passport.authenticate('local', {
     successRedirect: redirect,
     failureRedirect: '/login',
     failureFlash: true,
+  })(req, res);
+};
+
+let redirectGitHub = '';
+module.exports.github = (req, res) => {
+  redirectGitHub = req.session.returnTo || '/';
+  passport.authenticate('github')(req, res);
+};
+
+module.exports.githubCallback = (req, res) => {
+  passport.authenticate('github', {
+    successRedirect: redirectGitHub,
+    failureRedirect: '/login',
   })(req, res);
 };
 
@@ -24,10 +41,16 @@ module.exports.singupPage = (req, res) => res.render(
 
 module.exports.singup = (req, res) => {
   // TODO: verify the email address by sending a confirmation URL
-  db.users.save(req.body.name, req.body.username, req.body.password, req.body.email, (error) => {
-    if (error) {
-      res.status(500).send(`Failed to stored the user with error: ${error}`);
-    }
+  db.users.save(
+    req.body.name,
+    req.body.username,
+    req.body.password,
+    req.body.email,
+    req.body.userNameGitHub,
+    (error) => {
+      if (error) {
+        res.status(500).send(`Failed to stored the user with error: ${error}`);
+      }
   });
 
   res.redirect('/login');

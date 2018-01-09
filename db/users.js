@@ -5,11 +5,12 @@ class User {
     User.nextId += 1;
     return User.nextId;
   }
-  constructor(name, username, password, email) {
+  constructor(name, username, password, email, userNameGitHub) {
     this.id = User.getNextId();
     this.username = username;
     this.displayName = name;
     this.email = email;
+    this.userNameGitHub = userNameGitHub;
 
     const hash = crypto.createHash('sha256');
     hash.update(password);
@@ -47,7 +48,15 @@ module.exports.findByUsername = (username, done) => {
 };
 
 
-module.exports.save = (name, username, password, email, done) => {
+module.exports.findByGitHubUserName = (userNameGitHub, done) => {
+  const user = users.find(u => u.userNameGitHub === userNameGitHub);
+  if (user) {
+    return done(null, user);
+  }
+  return done(null);
+};
+
+module.exports.save = (name, username, password, email, userNameGitHub, done) => {
   let foundUser = users.find((user => user.username === username));
   if (foundUser) {
     return done(new Error(`A user with username: ${username} already exists`));
@@ -56,7 +65,7 @@ module.exports.save = (name, username, password, email, done) => {
   if (foundUser) {
     return done(new Error(`A user with email: ${email} already exists`));
   }
-  const user = new User(name, username, password, email);
+  const user = new User(name, username, password, email, userNameGitHub);
   users.push(user);
   return done(null);
 };

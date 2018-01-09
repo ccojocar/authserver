@@ -3,6 +3,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const BasicStrategy = require('passport-http').BasicStrategy;
 const ClinetPasswordStrategy = require('passport-oauth2-client-password').Strategy;
 const BearerStrategy = require('passport-http-bearer').Strategy;
+const GitHubStrategy = require('passport-github').Strategy;
 const db = require('../db');
 
 /**
@@ -94,3 +95,24 @@ passport.use(new BearerStrategy((accessToken, done) => {
     }
   });
 }));
+
+/**
+ * This strategy is used to authenticate a user with the GitHub IdP
+ */
+module.exports.configureGitHubAuth = (clientID, clientSecret, callbackURL) => {
+  passport.use(new GitHubStrategy({
+    clientID: clientID,
+    clientSecret: clientSecret,
+    callbackURL: callbackURL,
+  },
+  (accessToken, refreshToken, profile, done) => {
+    if (!accessToken) { return done(null, false); }
+    if (!profile) { return done(null, false); }
+    if (!profile.username) { return done(null, false); }
+    db.users.findByGitHubUserName(profile.username, (error, user) => {
+      if (error) { return done(error); }
+      if (!user) { return done(null, false); }
+      return done(null, user);
+    });
+  },
+))};

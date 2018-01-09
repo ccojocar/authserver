@@ -7,5 +7,6 @@ module.exports.info = [
     username: req.user.username,
     displayName: req.user.displayName,
     email: req.user.email,
+    userNameGitHub: req.user.userNameGitHub,
   }),
 ];
