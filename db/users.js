@@ -36,7 +36,6 @@ const users = [
 ];
 
 const localProvider = 'local';
-module.exports.LocalProvider = localProvider;
 
 module.exports.findById = (id, done) => {
   const user = users.find(u => u.id === id);
@@ -46,20 +45,20 @@ module.exports.findById = (id, done) => {
   return done(null);
 };
 
-module.exports.findByUsername = (username, done) => {
-  const user = users.find(u => u.username === username);
-  if (user) {
-    return done(null, user);
+module.exports.findLocalUserByUsername = (username, done) => {
+  const foundUser = users.filter(u => u.provider === localProvider).find(user => user.username === username);
+  if (foundUser) {
+    return done(null, foundUser);
   }
   return done(null);
 };
 
 module.exports.saveLocalUser = (name, username, password, email, done) => {
-  let foundUser = users.find((user => user.username === username));
+  let foundUser = users.filter(u => u.provider === localProvider).find(user => user.username === username);
   if (foundUser) {
     return done(new Error(`A user with username: ${username} already exists`));
   }
-  foundUser = users.find((user => user.email === email));
+  foundUser = users.filter(u => u.provider === localProvider).find((user => user.email === email));
   if (foundUser) {
     return done(new Error(`A user with email: ${email} already exists`));
   }

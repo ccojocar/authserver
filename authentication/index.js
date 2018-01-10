@@ -10,14 +10,11 @@ const db = require('../db');
  *  This strategy is used to authenticate users based on a username and password.
  */
 passport.use(new LocalStrategy((username, password, done) => {
-  db.users.findByUsername(username, (error, user) => {
+  db.users.findLocalUserByUsername(username, (error, user) => {
     if (error) {
       return done(null, false, { message: error.message });
     }
     if (!user) {
-      return done(null, false, { message: 'Incorrect username' });
-    }
-    if (user.provider !== db.users.LocalProvider) {
       return done(null, false, { message: 'Incorrect username' });
     }
     if (user.verifyPassword(password) === false) {
