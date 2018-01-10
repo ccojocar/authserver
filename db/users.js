@@ -5,19 +5,22 @@ class User {
     User.nextId += 1;
     return User.nextId;
   }
-  constructor(name, username, password, email, userNameGitHub) {
+  constructor(name, username, password, email, provider) {
     this.id = User.getNextId();
     this.username = username;
     this.displayName = name;
     this.email = email;
-    this.userNameGitHub = userNameGitHub;
+    this.provider = provider;
 
-    const hash = crypto.createHash('sha256');
-    hash.update(password);
-    this.password = hash.digest('hex');
+    if (password) {
+      const hash = crypto.createHash('sha256');
+      hash.update(password);
+      this.password = hash.digest('hex');
+    }
   }
 
   verifyPassword(password) {
+    if (!this.password) return false;
     const hash = crypto.createHash('sha256');
     hash.update(password);
     const hashPassword = hash.digest('hex');
@@ -28,8 +31,12 @@ class User {
 }
 User.nextId = 0;
 
+
 const users = [
 ];
+
+const localProvider = 'local';
+module.exports.LocalProvider = localProvider;
 
 module.exports.findById = (id, done) => {
   const user = users.find(u => u.id === id);
@@ -47,16 +54,7 @@ module.exports.findByUsername = (username, done) => {
   return done(null);
 };
 
-
-module.exports.findByGitHubUserName = (userNameGitHub, done) => {
-  const user = users.find(u => u.userNameGitHub === userNameGitHub);
-  if (user) {
-    return done(null, user);
-  }
-  return done(null);
-};
-
-module.exports.save = (name, username, password, email, userNameGitHub, done) => {
+module.exports.saveLocalUser = (name, username, password, email, done) => {
   let foundUser = users.find((user => user.username === username));
   if (foundUser) {
     return done(new Error(`A user with username: ${username} already exists`));
@@ -65,7 +63,22 @@ module.exports.save = (name, username, password, email, userNameGitHub, done) =>
   if (foundUser) {
     return done(new Error(`A user with email: ${email} already exists`));
   }
-  const user = new User(name, username, password, email, userNameGitHub);
+  const user = new User(name, username, password, email, localProvider);
   users.push(user);
   return done(null);
+};
+
+module.exports.saveExternalUser = (name, username, email, provider, done) => {
+  // The claims of an existing external uer are always overwritten
+  const foundUser = users.filter(u => u.provider === provider).find(u => u.username === username);
+  if (foundUser) {
+    foundUser.name = name;
+    foundUser.username = username;
+    foundUser.email = email;
+  } else {
+    const user = new User(name, username, undefined, email, provider);
+    users.push(user);
+    return done(null, user);
+  }
+  return done(null, foundUser);
 };

@@ -41,12 +41,11 @@ module.exports.singupPage = (req, res) => res.render(
 
 module.exports.singup = (req, res) => {
   // TODO: verify the email address by sending a confirmation URL
-  db.users.save(
+  db.users.saveLocalUser(
     req.body.name,
     req.body.username,
     req.body.password,
     req.body.email,
-    req.body.userNameGitHub,
     (error) => {
       if (error) {
         res.status(500).send(`Failed to stored the user with error: ${error}`);

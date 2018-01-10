@@ -17,6 +17,9 @@ passport.use(new LocalStrategy((username, password, done) => {
     if (!user) {
       return done(null, false, { message: 'Incorrect username' });
     }
+    if (user.provider !== db.users.LocalProvider) {
+      return done(null, false, { message: 'Incorrect username' });
+    }
     if (user.verifyPassword(password) === false) {
       return done(null, false, { message: 'Incorrect password' });
     }
@@ -108,11 +111,20 @@ module.exports.configureGitHubAuth = (clientID, clientSecret, callbackURL) => {
   (accessToken, refreshToken, profile, done) => {
     if (!accessToken) { return done(null, false); }
     if (!profile) { return done(null, false); }
-    if (!profile.username) { return done(null, false); }
-    db.users.findByGitHubUserName(profile.username, (error, user) => {
-      if (error) { return done(error); }
-      if (!user) { return done(null, false); }
-      return done(null, user);
-    });
+    let email = '';
+    if (profile.emails && profiles.emails.length > 0) {
+      email = profile.emails[0];
+    }
+    db.users.saveExternalUser(
+      profile.displayName,
+      profile.username,
+      email,
+      profile.provider,
+      (error, user) => {
+        if (error) { return done(error, user); }
+        return done(null, user);
+      },
+    );
   },
-))};
+  ));
+};
