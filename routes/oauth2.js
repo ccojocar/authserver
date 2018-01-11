@@ -69,8 +69,15 @@ module.exports.authorization = [
       if (redirectURI !== client.redirectURI) { return done(null, false); }
       return done(null, client, redirectURI);
     });
+  },
+  (oauth2, next) => {
+    db.consents.hasConsent(oauth2.user.id, oauth2.client.id, (error, consent) => {
+      if (error) { return next(error); }
+      if (consent === true) { return next(null, true); }
+      return next(null, false);
+    });
   }),
-  (req, res) => {
+  (req, res, next) => {
     res.render('consent', { transactionID: req.oauth2.transactionID, client: req.oauth2.client });
   },
 ];
@@ -79,7 +86,17 @@ module.exports.authorization = [
  * It handles the decision of the user consent.
  */
 module.exports.decision = [
-  server.decision(),
+  server.decision({
+    cancelField: 'deny',
+  },
+  undefined,
+  (req, oauth2, done) => {
+    if (oauth2 === undefined) { done(null); }
+    db.consents.save(oauth2.user.id, oauth2.client.id, (error) => {
+      if (error) { return done(error); }
+      return done(null);
+    });
+  }),
 ];
 
 /**

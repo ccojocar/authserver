@@ -120,8 +120,6 @@ module.exports.configureGitHubAuth = (clientID, clientSecret, callbackURL) => {
       (error, user) => {
         if (error) { return done(error, user); }
         return done(null, user);
-      },
-    );
-  },
-  ));
+      });
+  }));
 };
