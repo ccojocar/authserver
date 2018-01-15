@@ -5,9 +5,18 @@ module.exports.index = (req, res) => {
   res.render('home', { user: req.user });
 };
 
-module.exports.loginPage = (req, res) => res.render(
-  'login',
-  { errors: req.session.flash, csrfToken: req.csrfToken() });
+module.exports.loginPage = (req, res) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    let url = req.OriginalUrl || req.url;
+    // Redirect to main page if the user is already logged in
+    if (url === '/login') { url = '/'; }
+    res.redirect(url);
+  } else {
+    res.render(
+      'login',
+      { errors: req.session.flash, csrfToken: req.csrfToken() });
+  }
+};
 
 module.exports.userpassword = (req, res) => res.render(
   'userpassword',
