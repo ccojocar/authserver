@@ -1,9 +1,24 @@
+const mongodb = require('./mongodb');
+
 class AccessToken {
-  constructor(token, userId, clientId) {
+  static buildAccessTokenFromMongoResult(result) {
+    return new AccessToken(
+      result.token,
+      result.userId,
+      result.clientId,
+      result.issuedAt,
+    );
+  }
+
+  constructor(token, userId, clientId, issuedAt) {
     this.token = token;
     this.userId = userId;
     this.clientId = clientId;
-    this.issuedAt = new Date().getTime();
+    if (!issuedAt) {
+      this.issuedAt = new Date().getTime();
+    } else {
+      this.issuedAt = issuedAt;
+    }
   }
 
   isExpired() {
@@ -14,13 +29,33 @@ class AccessToken {
   }
 }
 
-const accessTokens = new Map();
+const MONGO_COLLECTION = 'accessTokens';
 
 module.exports.save = (token, userId, clientId, done) => {
-  if (accessTokens.has(token) === false) {
-    accessTokens.set(token, new AccessToken(token, userId, clientId));
-  }
-  return done(null);
+  mongodb.connect((connectError, db) => {
+    if (connectError) { return done(connectError); }
+    const dbo = db.db(mongodb.DATABASE);
+    const accessToken = new AccessToken(token, userId, clientId);
+    dbo.collection(MONGO_COLLECTION).insertOne(accessToken, (insertError) => {
+      db.close();
+      if (insertError) { return done(insertError); }
+      return done(null);
+    });
+  });
 };
 
-module.exports.find = (token, done) => done(null, accessTokens.get(token));
+module.exports.find = (token, done) => {
+  mongodb.connect((connectError, db) => {
+    if (connectError) { return done(connectError); }
+    const dbo = db.db(mongodb.DATABASE);
+    dbo.collection(MONGO_COLLECTION).findOne({
+      token: token,
+    }, {}, (findError, result) => {
+      db.close();
+      if (findError) { return done(findError); }
+      if (!result) { return done(null, null); }
+      const accessToken = AccessToken.buildAccessTokenFromMongoResult(result);
+      return done(null, accessToken);
+    });
+  });
+};

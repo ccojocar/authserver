@@ -1,19 +1,12 @@
 const crypto = require('crypto');
+const mongodb = require('./mongodb');
 
 class Client {
-  static getNextId() {
-    Client.nextId += 1;
-    return Client.nextId;
-  }
-  constructor(name, clientId, clientSecret, redirectURI) {
-    this.id = Client.getNextId();
+  constructor(name, id, clientSecret, redirectURI) {
     this.name = name;
-    this.clientId = clientId;
+    this.id = id;
+    this.clientSecret = clientSecret;
     this.redirectURI = redirectURI;
-
-    const hash = crypto.createHash('sha256');
-    hash.update(clientSecret);
-    this.clientSecret = hash.digest('hex');
   }
 
   verifyClientSecret(clientSecret) {
@@ -25,25 +18,26 @@ class Client {
       Buffer.from(hashClientSecret, 'utf8'));
   }
 }
-Client.nextId = 0;
 
-const clients = [
-  new Client('Client1', 'c96a5eca-f226-11e7-8c3f-9a214cf093ae', 'Client1Secret', 'http://localhost:3001/oauth2/callback'),
-];
-
-
-module.exports.findByClientId = (clientId, done) => {
-  const client = clients.find(c => c.clientId === clientId);
-  if (client) {
-    return done(null, client);
-  }
-  return done(null, null);
-};
+const MONGO_COLLECTION = 'clients';
 
 module.exports.findById = (id, done) => {
-  const client = clients.find(c => c.id === id);
-  if (client) {
-    return done(null, client);
-  }
-  return done(null, null);
+  mongodb.connect((error, db) => {
+    if (error) { return done(error); }
+    const dbo = db.db(mongodb.DATABASE);
+    dbo.collection(MONGO_COLLECTION).findOne({
+      clientId: id,
+    }, {}, (findError, result) => {
+      db.close();
+      if (findError) { return done(findError); }
+      if (!result) { return done(new Error('Client not found')); }
+      const client = new Client(
+        result.name,
+        result.clientId,
+        result.clientSecret,
+        result.redirectURI,
+      );
+      return done(null, client);
+    });
+  });
 };

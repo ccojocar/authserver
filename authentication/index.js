@@ -42,7 +42,7 @@ passport.deserializeUser((id, done) => {
  * Authorization header.
  */
 passport.use(new BasicStrategy((clientId, clientSecret, done) => {
-  db.clients.findByClientId(clientId, (error, client) => {
+  db.clients.findById(clientId, (error, client) => {
     if (error) {
       return done(null, false, { message: error.message });
     }
@@ -61,7 +61,7 @@ passport.use(new BasicStrategy((clientId, clientSecret, done) => {
  * HTTP body (e.g. passport-oauth2).
  */
 passport.use(new ClinetPasswordStrategy((clientId, clientSecret, done) => {
-  db.clients.findByClientId(clientId, (error, client) => {
+  db.clients.findById(clientId, (error, client) => {
     if (error) {
       return done(null, false, { message: error.message });
     }

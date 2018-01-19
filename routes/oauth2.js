@@ -49,8 +49,10 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
     const token = crypto.randomBytes(256).toString('hex');
     db.accessTokens.save(token, authCode.userId, authCode.clientId, (err) => {
       if (err) { return done(err); }
-      authCode.markAsUsed();
-      return done(null, token);
+      db.authcodes.markAsUsed(authCode.code, (markError) => {
+        if (markError) { return done(markError); }
+        return done(null, token);
+      });
     });
   });
 }));
@@ -63,7 +65,7 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
 module.exports.authorization = [
   login.ensureLoggedIn(),
   server.authorization((clientId, redirectURI, done) => {
-    db.clients.findByClientId(clientId, (error, client) => {
+    db.clients.findById(clientId, (error, client) => {
       if (error) { return done(error); }
       if (!client) { return done(null, false); }
       if (redirectURI !== client.redirectURI) { return done(null, false); }

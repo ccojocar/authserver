@@ -1,10 +1,23 @@
 const crypto = require('crypto');
+const mongodb = require('./mongodb');
 
 class Consent {
-  constructor(userId, clientId) {
+  static buildConsentFromMongoResult(result) {
+    return new Consent(
+      result.userId,
+      result.clientId,
+      result.grantedAt,
+    );
+  }
+
+  constructor(userId, clientId, grantedAt) {
     this.userId = userId;
     this.clientId = clientId;
-    this.grantedAt = new Date().getTime();
+    if (!grantedAt) {
+      this.grantedAt = new Date().getTime();
+    } else {
+      this.grantedAt = grantedAt;
+    }
   }
 
   isExpired() {
@@ -15,33 +28,71 @@ class Consent {
   }
 }
 
-function computeMapKey(...values) {
-  const stringValues = values.map(String);
-  const key = stringValues.join('-');
-  const hash = crypto.createHash('sha256');
-  hash.update(key);
-  return hash.digest('hex');
+const MONGO_COLLECTION = 'consents';
+
+function findConsent(userId, clientId, done) {
+  mongodb.connect((error, db) => {
+    if (error) { return done(error); }
+    const dbo = db.db(mongodb.DATABASE);
+    dbo.collection(MONGO_COLLECTION).findOne({
+      userId: userId,
+      clientId: clientId
+    }, {}, (findError, result) => {
+      db.close();
+      if (findError) { return done(findError); }
+      if (!result) { return done(null, null); }
+      const consent = Consent.buildConsentFromMongoResult(result);
+      return done(null, consent);
+    });
+  });
 }
 
-const consents = new Map();
-
 module.exports.save = (userId, clientId, done) => {
-  const key = computeMapKey(userId, clientId);
-  consents.set(key, new Consent(userId, clientId));
-  return done(null);
+  findConsent(userId, clientId, (error, foundConsent) => {
+    const consent = new Consent(userId, clientId);
+    if (foundConsent) {
+      const query = { 
+        userId: consent.userId,
+        clientId: consent.clientId,
+      };
+      const updatedConsent = { $set: { grantedAt: consent.grantedAt } };
+      mongodb.connect((connectError, db) => {
+        if (connectError) { return done(connectError); }
+        const dbo = db.db(mongodb.DATABASE);
+        dbo.collection(MONGO_COLLECTION).updateOne(query, updatedConsent, { upsert: true }, (updateError) => {
+          db.close();
+          if (updateError) { return done(updateError); }
+        });
+      });
+    } else {
+      const newConsent = {
+        userId: consent.userId,
+        clientId: consent.clientId,
+        grantedAt: consent.grantedAt,
+      };
+      mongodb.connect((connectError, db) => {
+        if (connectError) { return done(connectError); }
+        const dbo = db.db(mongodb.DATABASE);
+        dbo.collection(MONGO_COLLECTION).insertOne(newConsent, (insertError) => {
+          db.close();
+          if (insertError) { return done(insertError); }
+        });
+      });
+    }
+    return done(null);
+  })
 };
 
 
 module.exports.hasConsent = (userId, clientId, done) => {
-  const key = computeMapKey(userId, clientId);
-  const consent = consents.get(key);
-  if (consent === undefined) {
-    return done(null, false);
-  }
-  if (consent.isExpired()) {
-    // clean up the expired consent
-    consents.delete(key);
-    return done(null, false);
-  }
-  return done(null, true);
+  findConsent(userId, clientId, (error, foundConsent) => {
+    if (!foundConsent) {
+      return done(null, false);
+    }
+    if (foundConsent.isExpired()) {
+      return done(null, false);
+    }
+    return done(null, true);
+  })
 };
+

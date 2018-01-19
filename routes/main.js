@@ -58,10 +58,10 @@ module.exports.singup = (req, res) => {
     (error) => {
       if (error) {
         res.status(500).send(`Failed to stored the user with error: ${error}`);
+      } else {
+        res.redirect('/login');
       }
-  });
-
-  res.redirect('/login');
+    });
 };
 
 module.exports.logout = (req, res) => {
