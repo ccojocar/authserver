@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const mongodb = require('./mongodb');
 
 class Consent {
@@ -51,7 +50,7 @@ module.exports.save = (userId, clientId, done) => {
   findConsent(userId, clientId, (error, foundConsent) => {
     const consent = new Consent(userId, clientId);
     if (foundConsent) {
-      const query = { 
+      const query = {
         userId: consent.userId,
         clientId: consent.clientId,
       };
@@ -59,7 +58,7 @@ module.exports.save = (userId, clientId, done) => {
       mongodb.connect((connectError, db) => {
         if (connectError) { return done(connectError); }
         const dbo = db.db(mongodb.DATABASE);
-        dbo.collection(MONGO_COLLECTION).updateOne(query, updatedConsent, { upsert: true }, (updateError) => {
+        dbo.collection(MONGO_COLLECTION).updateOne( query, updatedConsent, { upsert: true }, (updateError) => {
           db.close();
           if (updateError) { return done(updateError); }
         });
@@ -80,7 +79,7 @@ module.exports.save = (userId, clientId, done) => {
       });
     }
     return done(null);
-  })
+  });
 };
 
 
@@ -93,6 +92,6 @@ module.exports.hasConsent = (userId, clientId, done) => {
       return done(null, false);
     }
     return done(null, true);
-  })
+  });
 };
 

@@ -98,7 +98,6 @@ module.exports.saveLocalUser = (name, username, password, email, done) => {
       if (emailUser) {
         return done(new Error(`A user with email: ${email} already exists`));
       }
-      
       const hash = crypto.createHash('sha256');
       hash.update(password);
       const hashedPassword = hash.digest('hex');
