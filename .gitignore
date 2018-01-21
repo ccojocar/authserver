@@ -7,3 +7,5 @@ package-lock.json
 .DS_Store
 # temporary files
 *.tmp*~
+# Mongo DB data directory
+data
