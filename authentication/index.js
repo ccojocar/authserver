@@ -25,12 +25,12 @@ passport.use(new LocalStrategy((username, password, done) => {
 }));
 
 /**
- * Store the use indetifier into the session
+ * Store the use identifier into the session
  */
 passport.serializeUser((user, done) => done(null, user.id));
 
 /**
- * Store the full user information based on the idenfitier stored into the session
+ * Store the full user information based on the identifier stored into the session
  */
 passport.deserializeUser((id, done) => {
   db.users.findById(id, (error, user) => done(error, user));

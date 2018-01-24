@@ -35,7 +35,7 @@ server.grant(oauth2orize.grant.code((client, redirectURI, user, ares, done) => {
 }));
 
 /**
- * This is executed when a client requrests to exchange an code grant for an access token.
+ * This is executed when a client requests to exchange an code grant for an access token.
  */
 server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
   db.authcodes.find(code, (error, authCode) => {
@@ -60,7 +60,7 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
 
 /**
  * It provides the authorization endpoint which is the entry point of the OAuth 2.0
- *  code grant. At this stage the user must authetnicate and the client should be verified.
+ *  code grant. At this stage the user must authenticate and the client should be verified.
  */
 module.exports.authorization = [
   login.ensureLoggedIn(),
@@ -102,7 +102,7 @@ module.exports.decision = [
 ];
 
 /**
- * It provides the token endpoint which is access by a client when it wants to excange a code grant
+ * It provides the token endpoint which is access by a client when it wants to exchange a code grant
  * for an access token.
  */
 module.exports.token = [
