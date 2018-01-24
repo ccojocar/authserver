@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(errorHandler());
 
 const cookieSecret = crypto.randomBytes(64).toString('hex');
-app.use(session({ secret: cookieSecret, resave: false, saveUninitialized: false }));
+app.use(session({ name: 'authserver-id', secret: cookieSecret, resave: false, saveUninitialized: false }));
 app.use(flash());
 
 app.use(passport.initialize());
