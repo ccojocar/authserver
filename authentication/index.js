@@ -15,10 +15,10 @@ passport.use(new LocalStrategy((username, password, done) => {
       return done(null, false, { message: error.message });
     }
     if (!user) {
-      return done(null, false, { message: 'Incorrect username' });
+      return done(null, false, { message: 'Incorrect user credentials' });
     }
     if (user.verifyPassword(password) === false) {
-      return done(null, false, { message: 'Incorrect password' });
+      return done(null, false, { message: 'Incorrect user credentials' });
     }
     return done(null, user);
   });
@@ -47,10 +47,10 @@ passport.use(new BasicStrategy((clientId, clientSecret, done) => {
       return done(null, false, { message: error.message });
     }
     if (!client) {
-      return done(null, false, { message: 'Client not found' });
+      return done(null, false, { message: 'Incorrect client credentials' });
     }
     if (client.verifyClientSecret(clientSecret) === false) {
-      return done(null, false, { message: 'Incorrect client password' });
+      return done(null, false, { message: 'Incorrect client credentials' });
     }
     return done(null, client);
   });
@@ -66,10 +66,10 @@ passport.use(new ClinetPasswordStrategy((clientId, clientSecret, done) => {
       return done(null, false, { message: error.message });
     }
     if (!client) {
-      return done(null, false, { message: 'Client not found' });
+      return done(null, false, { message: 'Incorrect client credentials' });
     }
     if (client.verifyClientSecret(clientSecret) === false) {
-      return done(null, false, { message: 'Incorrect client password' });
+      return done(null, false, { message: 'Incorrect client credentials' });
     }
     return done(null, client);
   });
