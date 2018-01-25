@@ -24,9 +24,6 @@ server.deserializeClient((id, done) => {
  * It issues a new code grant to a client after the user is authenticated.
  */
 server.grant(oauth2orize.grant.code((client, redirectURI, user, ares, done) => {
-  if (client.redirectURI !== redirectURI) {
-    return done(null, false);
-  }
   const code = crypto.randomBytes(16).toString('hex');
   db.authcodes.save(code, user.id, client.id, redirectURI, (error) => {
     if (error) { return done(error); }
@@ -35,7 +32,7 @@ server.grant(oauth2orize.grant.code((client, redirectURI, user, ares, done) => {
 }));
 
 /**
- * This is executed when a client requests to exchange an code grant for an access token.
+ * This is executed when a client requests to exchange a code grant for an access token.
  */
 server.exchange(oauth2orize.exchange.code((client, code, redirectURI, done) => {
   db.authcodes.find(code, (error, authCode) => {
@@ -102,7 +99,7 @@ module.exports.decision = [
 ];
 
 /**
- * It provides the token endpoint which is access by a client when it wants to exchange a code grant
+ * It provides the token endpoint which is accessed by a client when it wants to exchange a code grant
  * for an access token.
  */
 module.exports.token = [
