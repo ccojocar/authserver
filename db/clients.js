@@ -1,5 +1,5 @@
-const crypto = require('crypto');
 const mongodb = require('./mongodb');
+const bcrypt = require('bcrypt');
 
 class Client {
   constructor(name, id, clientSecret, redirectURI) {
@@ -9,13 +9,12 @@ class Client {
     this.redirectURI = redirectURI;
   }
 
-  verifyClientSecret(clientSecret) {
-    const hash = crypto.createHash('sha256');
-    hash.update(clientSecret);
-    const hashClientSecret = hash.digest('hex');
-    return crypto.timingSafeEqual(
-      Buffer.from(this.clientSecret, 'utf8'),
-      Buffer.from(hashClientSecret, 'utf8'));
+  verifyClientSecret(clientSecret, done) {
+    if (clientSecret === '' || this.clientSecret === '') { return done(null, false); }
+    bcrypt.compare(clientSecret, this.clientSecret, (bcryptError, equal) => {
+      if (bcryptError) { return done(bcryptError); }
+      return done(null, equal);
+    });
   }
 }
 

@@ -10,6 +10,7 @@
   "license": "ISC",
   "repository": "github.com/cosmincojocar/authserver",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "connect-ensure-login": "^0.1.1",
     "connect-flash": "^0.1.1",

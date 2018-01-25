@@ -1,6 +1,6 @@
-const crypto = require('crypto');
 const mongodb = require('./mongodb');
 const ObjectId = require('mongodb').ObjectId;
+const bcrypt = require('bcrypt');
 
 class User {
   static buildUserFromMongoResult(result) {
@@ -23,19 +23,20 @@ class User {
     this.password = password;
   }
 
-  verifyPassword(password) {
-    if (!this.password) return false;
-    const hash = crypto.createHash('sha256');
-    hash.update(password);
-    const hashPassword = hash.digest('hex');
-    return crypto.timingSafeEqual(
-      Buffer.from(this.password, 'utf8'),
-      Buffer.from(hashPassword, 'utf8'));
+  verifyPassword(password, done) {
+    if (!this.password || !password) { return done(null, false); }
+    if (this.password === '' || password === '') { return done(null, false); }
+
+    bcrypt.compare(password, this.password, (error, equal) => {
+      if (error) { return done(error); }
+      return done(null, equal);
+    });
   }
 }
 
 const LOCAL_PROVIDER = 'local';
 const MONGO_COLLECTION = 'users';
+const BCRYPT_SALT_ROUNDS = 10;
 
 module.exports.findById = (id, done) => {
   mongodb.connect((error, db) => {
@@ -98,23 +99,23 @@ module.exports.saveLocalUser = (name, username, password, email, done) => {
       if (emailUser) {
         return done(new Error(`A user with email: ${email} already exists`));
       }
-      const hash = crypto.createHash('sha256');
-      hash.update(password);
-      const hashedPassword = hash.digest('hex');
-      const newUser = {
-        name: name,
-        username: username,
-        password: hashedPassword,
-        email: email, 
-        provider: LOCAL_PROVIDER,
-      };
-      mongodb.connect((error, db) => {
-        if (error) { return done(error); }
-        const dbo = db.db(mongodb.DATABASE);
-        dbo.collection(MONGO_COLLECTION).insertOne(newUser, (insertError) => {
-          db.close();
-          if (insertError) { return done(insertError); }
-          return done(null);
+      bcrypt.hash(password, BCRYPT_SALT_ROUNDS, (bcryptError, hashedPassword) => {
+        if (bcryptError) { return done(bcryptError); }
+        const newUser = {
+          name: name,
+          username: username,
+          password: hashedPassword,
+          email: email,
+          provider: LOCAL_PROVIDER,
+        };
+        mongodb.connect((error, db) => {
+          if (error) { return done(error); }
+          const dbo = db.db(mongodb.DATABASE);
+          dbo.collection(MONGO_COLLECTION).insertOne(newUser, (insertError) => {
+            db.close();
+            if (insertError) { return done(insertError); }
+            return done(null);
+          });
         });
       });
     });
