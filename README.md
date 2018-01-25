@@ -6,10 +6,10 @@ This is a basic OpenID Connect IdP based on [oauth2orize](https://github.com/jar
 
 ### Client Registration
 
-Before using the identity provider, you must register a client in a MongoDB which it will be used as backend. First you need to compute the SHA256 of the client secret.
+Before using the identity provider, you must create a client in a [MongoDB](https://www.mongodb.com/) database . First you need to hash the client secret with [bcrypt-tool](https://github.com/shoenig/bcrypt-tool):
 
 ```bash
-echo -n "<CLIENT SECRET> | shasum -a 256
+bcrypt-tool hash <CLIENT SECRET> 10
 ```
 
 You can now start a MongoDB shell and create a new client:
@@ -19,7 +19,7 @@ mongo
 
 > use oauth2
 > db.createCollection("clients")
-> db.clients.insert({name: "Client1", clientId: "c96a5eca-f226-11e7-8c3f-9a214cf093ae", clientSecret: "<SHA256 of CLIENT SECRET>", redirectURI: "http://localhost:3001/oauth2/callback"})
+> db.clients.insert({name: "Client1", clientId: "c96a5eca-f226-11e7-8c3f-9a214cf093ae", clientSecret: "<HASHED CLIENT SECRET>", redirectURI: "http://localhost:3001/oauth2/callback"})
 
 ```
 
