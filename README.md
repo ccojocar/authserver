@@ -47,10 +47,10 @@ A new local user can be registered at `http://localhost:3000/singup`. The provid
 
 ### Run a Test Client
 
-You can test the authorization flow by using the [authclient](https://github.com/cosmincojocar/authclient).
+You can test the authorization flow by using the [authclient](https://github.com/ccojocar/authclient).
 
 ```bash
-git clone https://github.com/cosmincojocar/authclient
+git clone https://github.com/ccojocar/authclient
 cd authclient
 export CLIENT_ID=<CLIENT ID>
 export CLIENT_SECRET=<CLIENT_SECRET>

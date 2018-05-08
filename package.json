@@ -8,7 +8,7 @@
   },
   "author": "Cosmin Cojocar",
   "license": "ISC",
-  "repository": "github.com/cosmincojocar/authserver",
+  "repository": "github.com/ccojocar/authserver",
   "dependencies": {
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
